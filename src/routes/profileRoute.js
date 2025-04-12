@@ -1,13 +1,13 @@
-const express = require('express');
-const ProfileRouter = express.Router();
-const ProfileController = require("../controller/ProfileController")();
+import { Router } from 'express';
+import ProfileControllerFactory from '../controller/ProfileController.js';
 
-ProfileRouter.post('/new',ProfileController.newProfile)
+const profileRouter = Router();
+const ProfileController = ProfileControllerFactory();
 
-ProfileRouter.get('/all/:page/:perPage', ProfileController.allProfiles)
+// Define routes for profile management
+profileRouter.post('/new', ProfileController.newProfile);
+profileRouter.get('/all/:page/:perPage', ProfileController.allProfiles);
+profileRouter.get('/:id', ProfileController.selectProfile);
+profileRouter.post('/edit', ProfileController.editProfile);
 
-ProfileRouter.get('/:id', ProfileController.selectProfile)
-
-ProfileRouter.post('/edit', ProfileController.editProfile)
-
-module.exports = ProfileRouter;
+export default profileRouter;

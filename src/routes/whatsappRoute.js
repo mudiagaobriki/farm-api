@@ -1,14 +1,10 @@
-const express = require('express');
-const whatsappRouter = express.Router();
-const WhatsappController = require("../utils/twilio/Whatsapp")();
+import { Router } from 'express';
+import WhatsappControllerFactory from '../../utils/twilio/Whatsapp.js';
 
-// whatsappRouter.get('/all/:page/:perPage',RoomController.allRooms)
+const whatsappRouter = Router();
+const WhatsappController = WhatsappControllerFactory();
 
-whatsappRouter.post('/new-message', WhatsappController.sendWhatsAppMessages)
+// Send a new WhatsApp message
+whatsappRouter.post('/new-message', WhatsappController.sendWhatsAppMessages);
 
-// roomRouter.patch('/edit', RoomController.editRoom)
-//
-// roomRouter.get('/details/:number/', RoomController.selectRoom)
-
-
-module.exports = whatsappRouter;
+export default whatsappRouter;

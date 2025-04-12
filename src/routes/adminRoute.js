@@ -1,20 +1,20 @@
-const express = require('express');
-const adminRouter = express.Router();
-const AdminController = require("../controller/AdminController")();
+import { Router } from 'express';
+import AdminControllerFactory from '../controller/AdminController.js';
 
-adminRouter.route('/all-users/:page/:perPage/')
-    .get(AdminController.allUsers)
+const adminRouter = Router();
+const AdminController = AdminControllerFactory;
 
-adminRouter.route('/user/:email')
-    .get(AdminController.selectUserByEmail)
+// User listing with pagination and optional search
+adminRouter.get('/all-users/:page/:perPage', AdminController.allUsers);
 
-adminRouter.route('/user-by-id/:id')
-    .get(AdminController.selectUserById)
+// Get user details
+adminRouter.get('/user/:email', AdminController.selectUserByEmail);
+adminRouter.get('/user-by-id/:id', AdminController.selectUserById);
 
-adminRouter.route('/delete-user')
-    .post(AdminController.deleteUser)
+// Modify user
+adminRouter.post('/edit-user', AdminController.editUser);
 
-adminRouter.route('/edit-user')
-    .post(AdminController.editUser)
+// Delete user
+adminRouter.post('/delete-user', AdminController.deleteUser);
 
-module.exports = adminRouter;
+export default adminRouter;

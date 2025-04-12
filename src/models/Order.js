@@ -1,9 +1,10 @@
-const mongoose = require("mongoose");
-const mongoosePaginate = require('mongoose-paginate-v2');
-const {Schema} = require("mongoose");
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
-const orderSchema = new mongoose.Schema({
-    status: { type: String},
+const { Schema } = mongoose;
+
+const orderSchema = new Schema({
+    status: { type: String },
     orderTime: { type: String },
     service: { type: Schema.Types.ObjectId, ref: "Service" },
     room: { type: Schema.Types.ObjectId, ref: "Room" },
@@ -16,11 +17,13 @@ const orderSchema = new mongoose.Schema({
     feedback: { type: String },
     items: [{ type: String }],
     pendingBalance: [{ type: String }],
-},{
-    collection: 'demo_orders',
-    versionKey: false
+}, {
+    collection: "demo_orders",
+    versionKey: false,
 });
 
 orderSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("Order", orderSchema);
+const Order = mongoose.model("Order", orderSchema);
+
+export default Order;

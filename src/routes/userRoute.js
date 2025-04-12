@@ -1,51 +1,46 @@
-const express = require('express');
-const userRouter = express.Router();
-const UserController = require("../controller/UserController")();
+import { Router } from 'express';
+import UserControllerFactory from '../controller/UserController.js';
+import User from '../models/User.js';
 
-userRouter.route('/register')
-    .post(UserController.register)
+const userRouter = Router();
+const UserController = UserControllerFactory();
 
-userRouter.route('/login')
-    .post(UserController.login)
+// Registration and Authentication
+userRouter.post('/register', UserController.register);
+userRouter.post('/login', UserController.login);
 
-userRouter.route('/email/verify/:verifyToken')
-    .get(UserController.verifyUser)
+// Email Verification
+userRouter.get('/email/verify/:verifyToken', UserController.verifyUser);
+userRouter.post('/email/verify/resend', UserController.resendVerificationLink);
 
-userRouter.route('/auth/email/verify/resend')
-    .post(UserController.resendVerificationLink)
+// Password Reset
+userRouter.post('/email/forgot-password', UserController.forgotPassword);
+userRouter.post('/email/reset/:resetToken', UserController.resetPassword);
+userRouter.post('/email/password-reset', UserController.resetPassword2);
 
-userRouter.route('/email/forgotpassword')
-    .post(UserController.forgotPassword)
+// Logout
+userRouter.get('/logout', async (req, res) => {
+    try {
+        const { email } = req.query;
+        if (!email) {
+            return res.status(400).json({ status: 'error', msg: 'Email is required' });
+        }
 
-// userRouter.get('/email/reset/:resetToken', (req, res) => {
-//     let resetToken = req?.params?.resetToken;
-//     res.send("At verification page.")
-// })
+        const user = await User.findOneAndUpdate(
+            { email },
+            { loginToken: null },
+            { new: true }
+        );
 
-userRouter.route('/email/reset/:resetToken')
-    .post(UserController.resetPassword)
+        if (!user) {
+            return res.status(404).json({ status: 'error', msg: 'User not found' });
+        }
 
-userRouter.route('/email/password-reset')
-    .post(UserController.resetPassword2)
-
-userRouter.get('/logout',async (req, res) => {
-    let filter = {email: req?.params?.email}
-    let update = { loginToken: null }
-    let user = await User.findOneAndUpdate(filter, update)
-
-    if (user){
-        res.send({
-            status: "success",
-            msg: "Logged out successfully"
-        })
+        res.status(200).json({ status: 'success', msg: 'Logged out successfully' });
+    } catch (error) {
+        console.error('Logout error:', error);
+        res.status(500).json({ status: 'error', msg: 'Internal server error' });
     }
-    else{
-        res.send ({
-            status: "404 error",
-            msg: "User not found"
-        })
-    }
+});
 
-})
-
-module.exports = userRouter;
+export default userRouter;

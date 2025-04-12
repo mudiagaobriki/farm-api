@@ -1,4 +1,4 @@
-const Profile = require("../models/Profile");
+import Profile from '../models/Profile.js';
 
 function ProfileController() {
   const newProfile = async (req, res) => {
@@ -25,18 +25,9 @@ function ProfileController() {
       nextOfKinContact,
     } = req.body;
 
-    // validate the amenities
     if (!firstName) {
-      return res.status(400).send("First name is required.");
+      return res.status(400).send('First name is required.');
     }
-
-    // // check if amenity with the same name already exists
-    // const oldAmenity = await Amenity.findOne({name})
-    // console.log({oldAmenity})
-    //
-    // if (oldAmenity){
-    //     return res.status(409).send('Amenity with the same name already exists')
-    // }
 
     const payload = {
       firstName,
@@ -65,15 +56,13 @@ function ProfileController() {
       const profile = await Profile.create(payload);
 
       if (profile) {
-        return res
-          .status(201)
-          .json({
-            status: "success",
-            msg: "Profile created successfully.",
-            data: profile,
-          });
+        return res.status(201).json({
+          status: 'success',
+          msg: 'Profile created successfully.',
+          data: profile,
+        });
       } else {
-        return res.status(400).json("Error in creating profile.");
+        return res.status(400).json('Error in creating profile.');
       }
     } catch (err) {
       console.log({ err });
@@ -93,17 +82,17 @@ function ProfileController() {
       });
 
       if (!profile) {
-        return res.status(404).send("Profile not found");
+        return res.status(404).send('Profile not found');
       }
 
       res.status(200).json({
-        status: "success",
-        message: "Profile edited successfully",
+        status: 'success',
+        message: 'Profile edited successfully',
         data: profile,
       });
     } catch (err) {
       return res.status(500).json({
-        status: "error",
+        status: 'error',
         message: err?.toString(),
       });
     }
@@ -111,53 +100,40 @@ function ProfileController() {
 
   const allProfiles = async (req, res) => {
     try {
-      const page = req.params?.page;
-      const perPage = req.params?.perPage;
+      const page = req.params?.page || 1;
+      const perPage = req.params?.perPage || 10;
       const q = req.query?.q;
 
       const options = {
-        page: page,
+        page,
         limit: perPage,
         sort: { createdAt: -1 },
       };
 
-      const query = {
-        Profile: q,
-      };
+      let query = {};
 
       if (q && q.length) {
-        const Profiles = await Profile.paginate(query, options);
+        query = {
+          Profile: q,
+        };
+      }
 
-        if (Profiles) {
-          return res.send({
-            status: "success",
-            data: Profiles,
-          });
-        } else {
-          return res.send({
-            status: "error",
-            message: "Fetching Profiles with query failed",
-          });
-        }
+      const profiles = await Profile.paginate(query, options);
+
+      if (profiles) {
+        return res.send({
+          status: 'success',
+          data: profiles,
+        });
       } else {
-        // Pagination of all posts
-        const Profiles = await Profile.paginate({}, options);
-
-        if (Profiles) {
-          return res.send({
-            status: "success",
-            data: Profiles,
-          });
-        } else {
-          res.send({
-            status: "error",
-            message: "Fetching Profiles failed",
-          });
-        }
+        return res.send({
+          status: 'error',
+          message: 'Fetching profiles failed',
+        });
       }
     } catch (e) {
       return res.send({
-        status: "error",
+        status: 'error',
         message: e.toString(),
       });
     }
@@ -165,29 +141,27 @@ function ProfileController() {
 
   const selectProfile = async (req, res) => {
     try {
-      // Get user input
       const { id } = req.params;
 
-      // check if user already exist
-      // Validate if user exist in our database
       const profile = await Profile.find({ _id: id });
 
-      // console.log({accountNumber})
-
-      if (!profile) {
+      if (!profile || profile.length === 0) {
         return res.send({
-          status: "error",
-          data: "No profile with that id",
+          status: 'error',
+          data: 'No profile with that id',
         });
       }
 
-      // return the subscription found
       res.status(200).send({
-        status: "success",
+        status: 'success',
         data: profile,
       });
     } catch (err) {
       console.log(err);
+      res.status(500).send({
+        status: 'error',
+        message: 'An error occurred while retrieving the profile.',
+      });
     }
   };
 
@@ -199,4 +173,4 @@ function ProfileController() {
   };
 }
 
-module.exports = ProfileController;
+export default ProfileController;

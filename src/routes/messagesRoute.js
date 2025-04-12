@@ -1,14 +1,10 @@
-const express = require('express');
-const messageRouter = express.Router();
-const SMSController = require("../controller/MessagingController")();
+import { Router } from 'express';
+import SMSControllerFactory from '../controller/MessagingController.js';
 
-// whatsappRouter.get('/all/:page/:perPage',RoomController.allRooms)
+const messageRouter = Router();
+const SMSController = SMSControllerFactory;
 
-messageRouter.post('/new', SMSController.newMessage)
+// Define routes for SMS functionality
+messageRouter.post('/new', SMSController.newMessage);
 
-// roomRouter.patch('/edit', RoomController.editRoom)
-//
-// roomRouter.get('/details/:number/', RoomController.selectRoom)
-
-
-module.exports = messageRouter;
+export default messageRouter;

@@ -1,25 +1,35 @@
-const mongoose = require("mongoose");
-const mongoosePaginate = require("mongoose-paginate-v2");
+import mongoose from "mongoose";
+import mongoosePaginate from "mongoose-paginate-v2";
 
-const userSchema = new mongoose.Schema(
-  {
-    email: { type: String, unique: true },
-    password: { type: String },
-    loginToken: { type: String },
-    type: { type: String },
-    status: { type: String },
-    profile: { type: mongoose.Schema.Types.ObjectId, ref: "Profile" },
-    emailVerifiedAt: { type: Date },
-    verified: { type: Boolean, default: false },
-    phoneVerified: { type: Boolean },
-    isDeleted: { type: Boolean, default: false },
-  },
-  {
-    collection: "demo_users",
-    versionKey: false,
-  }
+const { Schema } = mongoose;
+
+const userSchema = new Schema(
+    {
+        email: { type: String, unique: true },
+        username: { type: String, unique: true },
+        phone: { type: String, unique: true },
+        password: { type: String },
+        loginToken: { type: String },
+        type: { type: String, default: "user" },
+        status: { type: String },
+        profile: { type: Schema.Types.ObjectId, ref: "Profile" },
+        emailVerifiedAt: { type: Date },
+        verified: { type: Boolean, default: false },
+        phoneVerified: { type: Boolean },
+        is2faEnabled: { type: Boolean, default: false },
+        typeOf2fa: { type: String },
+        otpCode: { type: String },
+        pin: { type: String },
+        isDeleted: { type: Boolean, default: false },
+    },
+    {
+        collection: "users",
+        versionKey: false,
+    }
 );
 
 userSchema.plugin(mongoosePaginate);
 
-module.exports = mongoose.model("User", userSchema);
+const User = mongoose.model("User", userSchema);
+
+export default User;

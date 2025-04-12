@@ -1,36 +1,41 @@
-require("dotenv").config();
-const accountSid = process.env.TWILIO_ACCOUNT_SSID; // Your Twilio account SID
-const authToken = process.env.TWILIO_AUTH_TOKEN;   // Your Twilio auth token
-const twilioNumber = 'whatsapp:+14155238886'; // Your Twilio WhatsApp number
-const client = require('twilio')(accountSid, authToken);
+import dotenv from 'dotenv';
+import twilio from 'twilio';
 
-function WhatsAppController(){
-    async function sendWhatsAppMessages(req, res) {
+dotenv.config();
+
+const { TWILIO_ACCOUNT_SSID, TWILIO_AUTH_TOKEN } = process.env;
+const twilioNumber = 'whatsapp:+14155238886'; // Your Twilio WhatsApp number
+const client = twilio(TWILIO_ACCOUNT_SSID, TWILIO_AUTH_TOKEN);
+
+const WhatsAppController = () => {
+    const sendWhatsAppMessages = async (req, res) => {
         try {
-            const { message, numbers} = req?.body ?? {}
+            const { message, numbers } = req.body ?? {};
+
+            if (!message || !numbers || numbers.length === 0) {
+                return res.status(400).json({ status: 'error', msg: 'Message or numbers are missing.' });
+            }
 
             for (const number of numbers) {
                 await client.messages.create({
                     body: message,
                     from: twilioNumber,
-                    to: number // Use the valid WhatsApp phone number format here
+                    to: number, // Use valid WhatsApp phone number format here
                 });
+
                 console.log(`Message sent to ${number}`);
             }
+
+            return res.status(200).json({ status: 'success', msg: 'Messages sent successfully' });
         } catch (error) {
             console.error('Error sending WhatsApp message:', error);
+            return res.status(500).json({ status: 'error', msg: 'Failed to send message' });
         }
-    }
+    };
 
     return {
-        sendWhatsAppMessages
-    }
-}
+        sendWhatsAppMessages,
+    };
+};
 
-
-module.exports = WhatsAppController
-
-// // Example usage
-// const numbers = ['whatsapp:+2348138885831', 'whatsapp:+2348142627974']; // Array of WhatsApp numbers
-// const message = 'Hello from Twilio! This is a test message.'; // Message content
-// sendWhatsAppMessages(numbers, message);
+export default WhatsAppController;

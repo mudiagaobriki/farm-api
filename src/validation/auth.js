@@ -1,11 +1,19 @@
-const Joi = require("joi");
+// const Joi = require("joi");
+// const Joi = import('joi');
+import Joi from 'joi';
+
+const passwordSchema = Joi.string()
+    .min(8)
+    .pattern(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/)
+    .required();
 
 export const registerSchema = Joi.object({
-  firstName: Joi.string().required(),
-  lastName: Joi.string().required(),
+  // firstName: Joi.string().required(),
+  // lastName: Joi.string().required(),
   email: Joi.string().email().required(),
+  username: Joi.string().required(),
   password: passwordSchema,
-  phone: Joi.string().pattern(/^[0-9]{10}$/).required(),
+  phone: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).required(),
   type: Joi.string().valid("user", "admin").required()
 }).unknown(false);
 
@@ -13,9 +21,4 @@ export const loginSchema = Joi.object({
   email: Joi.string().email().required(),
   password: passwordSchema
 }).unknown(false);
-
-const passwordSchema = Joi.string()
-  .min(8)
-  .pattern(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/)
-  .required();
 

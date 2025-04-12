@@ -1,17 +1,13 @@
-const express = require('express');
-const TransactionRouter = express.Router();
-const TransactionController = require("../controller/TransactionController")();
+import { Router } from 'express';
+import TransactionControllerFactory from '../controller/TransactionController.js';
 
-TransactionRouter.route('/transaction/new')
-    .post(TransactionController.newTransaction)
+const transactionRouter = Router();
+const TransactionController = TransactionControllerFactory();
 
-TransactionRouter.route('/transaction/all/:page/:perPage/')
-    .get(TransactionController.allTransactions)
+// Define routes for transaction management
+transactionRouter.post('/transaction/new', TransactionController.newTransaction);
+transactionRouter.get('/transaction/all/:page/:perPage', TransactionController.allTransactions);
+transactionRouter.get('/transaction/details/:email/:accountNumber', TransactionController.selectTransaction);
+transactionRouter.post('/transaction/edit', TransactionController.editTransaction);
 
-TransactionRouter.route('/transaction/details/:email/:accountNumber/')
-    .get(TransactionController.selectTransaction)
-
-TransactionRouter.route('/transaction/edit')
-    .post(TransactionController.editTransaction)
-
-module.exports = TransactionRouter;
+export default transactionRouter;

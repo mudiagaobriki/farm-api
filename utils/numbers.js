@@ -1,8 +1,8 @@
-function randomString(len) {
-    var p = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-    return [...Array(len)].reduce(a=>a+p[~~(Math.random()*p.length)],'');
-}
+const randomString = (len) => {
+    const p = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    return [...Array(len)].reduce((a) => a + p[~~(Math.random() * p.length)], '');
+};
 
-module.exports = {
-    randomString
-}
+export {
+    randomString,
+};
