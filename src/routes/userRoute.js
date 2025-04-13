@@ -8,6 +8,7 @@ const UserController = UserControllerFactory();
 // Registration and Authentication
 userRouter.post('/register', UserController.register);
 userRouter.post('/login', UserController.login);
+userRouter.post('/validate-username', UserController.isUsernameExists);
 
 // Email Verification
 userRouter.get('/email/verify/:verifyToken', UserController.verifyUser);

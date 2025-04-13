@@ -22,3 +22,6 @@ export const loginSchema = Joi.object({
   password: passwordSchema
 }).unknown(false);
 
+export const usernameExistsSchema = Joi.object({
+  username: Joi.string().required(),
+}).unknown(false);

@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import User from '../models/User.js';
-import { registerSchema, loginSchema } from '../validation/auth.js';
+import {registerSchema, loginSchema, usernameExistsSchema} from '../validation/auth.js';
 import {
   sendVerificationEmail,
   sendPasswordForgotEmail
@@ -19,11 +19,16 @@ function UserController() {
         });
       }
 
-      const { email, password, firstName } = value;
+      const { email, password, phone, firstName } = value;
 
-      const oldUser = await User.findOne({ email });
+      var oldUser = await User.findOne({ email });
       if (oldUser) {
-        return res.status(409).json({ message: 'User already exists. Please login.' });
+        return res.status(409).json({ message: 'User with this email exists.' });
+      }
+
+      oldUser = await User.findOne({ phone });
+      if (oldUser) {
+        return res.status(409).json({ message: 'User with this phone number exists.' });
       }
 
       const encryptedPassword = await bcrypt.hash(password, 10);
@@ -58,6 +63,33 @@ function UserController() {
     }
   };
 
+  const isUsernameExists = async (req, res) => {
+    try {
+      console.log("Body: ", req.body)
+      const { error, value } = usernameExistsSchema.validate(req.body, { abortEarly: false });
+      if (error) {
+        return res.status(400).json({
+          message: 'Validation error',
+          details: error.details.map(err => err.message),
+        });
+      }
+
+      const { username } = value;
+
+      var oldUser = await User.findOne({ username });
+      if (oldUser) {
+        return res.status(409).json({ message: 'User with this username exists.' });
+      }
+
+      res.status(201).json({
+        message: 'Username good to go',
+      });
+    } catch (err) {
+      console.error('Username validation error:', err);
+      res.status(500).json({ message: 'An error occurred during username validation. Please try again later.' });
+    }
+  };
+
   const login = async (req, res) => {
     try {
       const { error, value } = loginSchema.validate(req.body, { abortEarly: false });
@@ -68,7 +100,9 @@ function UserController() {
         });
       }
 
-      const { email, password } = value;
+      const { username, password } = value;
+
+      // console.log({ email, username, phone, password })
 
       const user = await User.findOne({ email }).select('+password');
       if (!user) {
@@ -290,6 +324,7 @@ function UserController() {
     forgotPassword,
     resetPassword,
     resetPassword2,
+    isUsernameExists
   };
 }
 
