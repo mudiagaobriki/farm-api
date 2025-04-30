@@ -7,6 +7,7 @@ import {
   sendVerificationEmail,
   sendPasswordForgotEmail
 } from '../../utils/emails/sendEmails.js';
+import {formatPhoneNumber} from "../../utils/func.js";
 
 function UserController() {
   const register = async (req, res) => {
@@ -65,7 +66,6 @@ function UserController() {
 
   const isUsernameExists = async (req, res) => {
     try {
-      console.log("Body: ", req.body)
       const { error, value } = usernameExistsSchema.validate(req.body, { abortEarly: false });
       if (error) {
         return res.status(400).json({
@@ -92,6 +92,7 @@ function UserController() {
 
   const login = async (req, res) => {
     try {
+      // console.log("Body: ", req.body)
       const { error, value } = loginSchema.validate(req.body, { abortEarly: false });
       if (error) {
         return res.status(400).json({
@@ -100,11 +101,25 @@ function UserController() {
         });
       }
 
-      const { username, password } = value;
+      let email = value?.email;
+      const password = value?.password;
 
-      // console.log({ email, username, phone, password })
+      // format the input in case a phone number was used, so it will be the right format
+      email = formatPhoneNumber(email);
 
-      const user = await User.findOne({ email }).select('+password');
+      let query = {};
+      if (email) {
+        query = {
+          $or: [
+            { email },
+            { username: email },
+            { phone: email }
+          ]
+        };
+      }
+
+      const user = await User.findOne(query).select('+password');
+
       if (!user) {
         return res.status(401).json({ message: 'Invalid email or password.' });
       }

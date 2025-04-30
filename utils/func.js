@@ -2,10 +2,8 @@ import jwt from 'jsonwebtoken';
 const { verify } = jwt;
 import moment from 'moment';
 // import env from "../../env";
-import BundleCategory from '../models/BundleCategory';
-import Subscription from '../models/Subscription';
-import User from '../models/User';
-import { http } from './axios';
+import User from '../src/models/User.js';
+import http  from './axios.js';
 
 import fs from 'fs';
 import fsExtra from 'fs-extra';
@@ -40,7 +38,24 @@ const checkIfUserIsLoggedIn = async (http) => {
     }
 };
 
+const isNumeric = str => /^[+-]?\d+(\.\d+)?$/.test(str);
+
+const formatPhoneNumber = (phoneNumber) => {
+    if (isNumeric(phoneNumber)) {
+        if (phoneNumber.indexOf('0') === 0) {
+            return phoneNumber.replace('0', '');
+        }
+    }
+    else if (phoneNumber.indexOf('+') === 0) {
+        return phoneNumber.replace('+234', '');
+    }
+    else{
+        return phoneNumber;
+    }
+}
+
 export {
     capitalize,
     checkIfUserIsLoggedIn,
+    formatPhoneNumber,
 };
